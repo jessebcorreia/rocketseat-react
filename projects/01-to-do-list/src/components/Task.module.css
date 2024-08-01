@@ -1,0 +1,105 @@
+.task {
+  width: 100%;
+  background: var(--gray-500);
+  color: var(--gray-300);
+  border: 1px solid var(--gray-400);
+  border-radius: 0.8rem;
+  padding: 1.6rem;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6rem;
+}
+
+.taskCompleted {
+  border-color: var(--gray-500);
+}
+
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 1.75rem;
+  height: 1.75rem;
+  background: none;
+  outline: none;
+  border: 1px solid var(--blue-500);
+  border-radius: 50%;
+  color: var(--gray-100);
+  transition: 0.2s;
+
+  position: relative;
+}
+
+.checkbox:hover {
+  background: var(--gray-600);
+  border-color: var(--blue-800);
+}
+
+.checkbox:checked {
+  background-color: var(--purple-800);
+  border-color: var(--purple-800);
+}
+
+.checkbox:checked::before {
+  content: "";
+  display: block;
+  background: none;
+  background-image: url("../assets/checked.svg");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+
+  width: 70%;
+  height: 70%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox:checked:hover {
+  background-color: var(--purple-500);
+  border-color: var(--purple-500);
+}
+
+.task p {
+  flex: 1;
+  text-align: justify;
+  font-size: 1.4rem;
+}
+
+.paragraphPending {
+  color: var(--gray-100);
+  text-decoration: none;
+}
+
+.paragraphCompleted {
+  color: var(--gray-300);
+  text-decoration: line-through;
+}
+
+.task svg {
+  width: 1.6rem;
+  height: 1.8rem;
+}
+
+.task button {
+  background: none;
+  color: var(--gray-300);
+  line-height: 0;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+  cursor: pointer;
+  transition: 0.1s;
+}
+
+.task button:hover {
+  background: var(--gray-400);
+  color: var(--red-300);
+}
+
+.task button:active {
+  color: var(--red-200);
+}
