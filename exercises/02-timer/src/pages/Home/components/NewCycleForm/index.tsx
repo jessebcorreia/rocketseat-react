@@ -2,16 +2,16 @@ import { useContext } from 'react'
 import { FormContainer, TaskInput, MinutesAmountInput } from './styles'
 
 // Importação dos contextos
-import { CyclesContext } from '../..'
+import { CyclesContext } from '../../../../contexts/CyclesContext'
 import { useFormContext } from 'react-hook-form'
 
-// Início da criação do componente NewCycleForm()
 export function NewCycleForm() {
-  // Desestruturação do contexto dos ciclos
+  // Início da criação do componente NewCycleForm()
   const { activeCycle } = useContext(CyclesContext)
+  // Desestruturação do contexto dos ciclos
 
-  // Desestruturação do contexto do formulário
   const { register } = useFormContext()
+  // Desestruturação do contexto do formulário
 
   return (
     <FormContainer>
@@ -22,8 +22,8 @@ export function NewCycleForm() {
         placeholder="Dê um nome para o seu projeto"
         list="task-suggestions"
         disabled={!!activeCycle}
-        // o register é usado para conectar esse campo de input ao formulário gerenciado pelo react-hook-form. Ele está atribuindo o name="task" a este campo, permitindo a coleta e validação de dados
         {...register('task')}
+        // o register é usado para conectar esse campo de input ao formulário gerenciado pelo react-hook-form. Ele está atribuindo o name="task" a este campo, permitindo a coleta e validação de dados
       />
 
       <datalist id="task-suggestions">
