@@ -1,19 +1,25 @@
-import { createContext, ReactNode, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
+
+import { differenceInSeconds } from 'date-fns'
+
+import { Cycle, cyclesReducer } from '../reducers/cycles/reducer'
+
+import {
+  addNewCycleAction,
+  interruptCurrentCycleAction,
+  markCurrentCycleAsFinishedAction,
+} from '../reducers/cycles/actions'
 
 interface CreateCycleData {
   // Tipagem do parâmetro da função para criar um novo ciclo
   task: string
   minutesAmount: number
-}
-
-interface Cycle {
-  // Tipagem de cada ciclo
-  id: string
-  task: string
-  minutesAmount: number
-  startDate: Date
-  interruptedDate?: Date
-  finishedDate?: Date
 }
 
 interface CyclesContextType {
@@ -29,22 +35,56 @@ interface CyclesContextType {
   interruptCurrentCycle: () => void
 }
 
+// Criação e exportação do contexto dos ciclos
+export const CyclesContext = createContext({} as CyclesContextType)
+
+// Criação de uma interface definindo a tipagem da propriedade do CyclesContextProvider. Neste caso, 'children' tem o tipo 'ReactNode', que significa qualquer componente react.
 interface CyclesContextProviderProps {
   children: ReactNode
 }
 
-export const CyclesContext = createContext({} as CyclesContextType)
-// Criação e exportação do contexto dos ciclos
-
 export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
-  const [cycles, setCycles] = useState<Cycle[]>([])
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState<number>(0)
+  const [cyclesState, dispatch] = useReducer(
+    cyclesReducer,
+    {
+      cycles: [],
+      activeCycleId: null,
+    },
+    //
+    (initialState) => {
+      // Busca as informações no localstorage do navegador
+      const storageStateAsJSON = localStorage.getItem(
+        '@timer:cycles-state-1.0.0',
+      )
 
+      // Se houver alguma informação salva, então as retorna no formato string e será utilizada como estado inicial. Caso contrário retorna o estado inicial padrão.
+      if (storageStateAsJSON) {
+        return JSON.parse(storageStateAsJSON)
+      }
+      return initialState
+    },
+  )
+
+  const { cycles, activeCycleId } = cyclesState
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
   // Declaração de uma variável que recebe como valor a execução do método find(). Esse método percorre o array de objetos (ciclos) e retorna o primeiro elemento que satisfizer a condição (ou seja, que o ID do ciclo seja igual ao ID armazenado na variável activeCycleID). Com isso, será retornado o objeto (ciclo) ativo
+
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState<number>(() => {
+    if (activeCycle) {
+      return differenceInSeconds(new Date(), new Date(activeCycle.startDate))
+    }
+    return 0
+  })
+
+  useEffect(() => {
+    // Converte as informações dos ciclos para strings no formato JSON
+    const stateJSON = JSON.stringify(cyclesState)
+
+    // Salva as informações JSON no localstorage do navegador
+    localStorage.setItem('@timer:cycles-state-1.0.0', stateJSON)
+  }, [cyclesState])
 
   function setSecondsPassed(seconds: number) {
     // Função para mudança de estado - executa o setAmountSecondsPassed()
@@ -53,20 +93,10 @@ export function CyclesContextProvider({
 
   function setActiveCycleIdAsNull() {
     // Função para mudança de estado - executa o setActiveCycleId()
-    setActiveCycleId(null)
   }
 
   function markCurrentCycleAsFinished() {
-    // Função que inclui a data de encerramento de um ciclo
-    setCycles((state) => {
-      return state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, finishedDate: new Date() }
-        } else {
-          return cycle
-        }
-      })
-    })
+    dispatch(markCurrentCycleAsFinishedAction())
   }
 
   function createNewCycle(data: CreateCycleData) {
@@ -78,23 +108,13 @@ export function CyclesContextProvider({
       minutesAmount: data.minutesAmount,
       startDate: new Date(),
     }
-    setCycles((state) => [...state, newCycle])
-    setActiveCycleId(id)
+
+    dispatch(addNewCycleAction(newCycle))
     setAmountSecondsPassed(0)
   }
 
   function interruptCurrentCycle() {
-    // Função para interromper o ciclo, acrescentando a data de interrupção no ciclo ativo e definindo a variável activeCycleId como "null" ao final de sua execução
-    setCycles((state) => {
-      return state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, interruptedDate: new Date() }
-        } else {
-          return cycle
-        }
-      })
-    })
-    setActiveCycleId(null)
+    dispatch(interruptCurrentCycleAction())
   }
 
   return (

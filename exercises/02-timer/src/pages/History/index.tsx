@@ -11,8 +11,6 @@ export function History() {
     <HistoryContainer>
       <h1>Meu histórico</h1>
 
-      <pre>{JSON.stringify(cycles, null, 2)}</pre>
-
       <HistoryList>
         <table>
           <thead>
@@ -30,20 +28,20 @@ export function History() {
                   <td>{cycle.task}</td>
                   <td>{cycle.minutesAmount} minutos</td>
                   <td>
-                    {formatDistanceToNow(cycle.startDate, {
+                    {formatDistanceToNow(new Date(cycle.startDate), {
                       addSuffix: true,
                       locale: ptBR,
                     })}
                   </td>
                   <td>
                     {cycle.finishedDate && (
-                      <Status statusColor="green">Concluído</Status>
+                      <Status $statusColor="green">Concluído</Status>
                     )}
                     {cycle.interruptedDate && (
-                      <Status statusColor="red">Interrompido</Status>
+                      <Status $statusColor="red">Interrompido</Status>
                     )}
                     {!cycle.finishedDate && !cycle.interruptedDate && (
-                      <Status statusColor="yellow">Em andamento</Status>
+                      <Status $statusColor="yellow">Em andamento</Status>
                     )}
                   </td>
                 </tr>
